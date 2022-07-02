@@ -18,7 +18,7 @@ font = pg.font.SysFont("Arial", 30, True)
 
 snake_size = [20, 20]
 snake_pos = [int(screen[0] / 2 - snake_size[0]), int(screen[1] / 2 - snake_size[1])]
-velocity = 10
+velocity = 20
 direction = [1, 0]
 score = 0
 trail = []
@@ -62,8 +62,19 @@ def changeDirection(key):
     )
 
 
+def restartGame():
+    global snake_pos, snake_size, velocity, direction, score, trail, apple_pos, apple_size
+    snake_pos = [int(screen[0] / 2 - snake_size[0]), int(screen[1] / 2 - snake_size[1])]
+    velocity = 20
+    direction = [1, 0]
+    score = 0
+    trail = []
+    apple_pos = [random.randint(200, 200), random.randint(200, 200)]
+    apple_size = [20, 20]
+
+
 while True:
-    clock.tick(30)
+    clock.tick(20)
     text = "score: " + str(score)
     rendered_text = font.render(text, True, (0, 0, 0))
     screen_set.fill((255, 255, 255))
@@ -81,6 +92,10 @@ while True:
         snake_pos[0] + direction[0] * velocity,
         snake_pos[1] + direction[1] * velocity,
     ]
+    if snake_pos[0] < 0 or snake_pos[0] >= screen[0]:
+        snake_pos[0] = (screen[0]) * (snake_pos[0] < 1)
+    if snake_pos[1] < 0 or snake_pos[1] >= screen[1]:
+        snake_pos[1] = (screen[1]) * (snake_pos[1] < 1)
 
     trail.append(snake_pos)
     drawSnake(trail)
@@ -103,6 +118,18 @@ while True:
         ]
         score += 1
         collision_sound.play()
+    if snake_pos in trail[:-1]:
+        while True:
+            reseted = 0
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    exit()
+                if event.type == pg.KEYDOWN and event.key == pg.K_r:
+                    restartGame()
+                    reseted = 1
+            if reseted:
+                break
 
     screen_set.blit(rendered_text, (10, 10))
 
